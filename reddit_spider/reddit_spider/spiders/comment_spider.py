@@ -40,7 +40,7 @@ class CommentSpider(scrapy.Spider):
         
         # For every div class=md text on page, send it to pipelines to save to clean and save
         for div in response.css("div.md"):
-            # Creates a unique id for ever comment based on comment and the url it was found in  
+            # Creates a unique id for every comment based on comment and the url it was found in  
             div_p_text = div.css("div.md p::text").extract()
             comment_id = response.url+''.join(div_p_text)
             yield {
