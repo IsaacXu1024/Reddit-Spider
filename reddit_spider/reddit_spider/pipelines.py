@@ -8,7 +8,7 @@
 #import json
 from scrapy.exceptions import DropItem
 
-class JsonWriterPipeline(object):
+class WriterPipeline(object):
     
     def open_spider(self, spider):
         self.file = open('scraped_content/comments.txt', 'a', encoding='utf-8')

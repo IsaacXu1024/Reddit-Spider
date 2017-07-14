@@ -65,7 +65,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'reddit_spider.pipelines.JsonWriterPipeline': 800,
+    'reddit_spider.pipelines.WriterPipeline': 800,
     'reddit_spider.pipelines.DuplicatesPipeline': 300
 }
 
