@@ -11,7 +11,7 @@ from scrapy.exceptions import DropItem
 class JsonWriterPipeline(object):
     
     def open_spider(self, spider):
-        self.file = open('../scraped_content/comments.txt', 'a', encoding='utf-8')
+        self.file = open('scraped_content/comments.txt', 'a', encoding='utf-8')
 
     def close_spider(self, spider):
         self.file.close()
@@ -28,12 +28,12 @@ class JsonWriterPipeline(object):
 
 class DuplicatesPipeline(object):
 
-    def __init__(self):
+    def open_spider(self, spider):
         self.comments_seen = set()
-        load_file_to_set(self.comments_seen, filename='../scraped_content/comment_ids_seen.txt')
+        load_file_to_set(self.comments_seen, filename='scraped_content/comment_ids_seen.txt')
 
     def close_spider(self, spider):
-        save_set_to_file(self.comments_seen, filename='../scraped_content/comment_ids_seen.txt')
+        save_set_to_file(self.comments_seen, filename='scraped_content/comment_ids_seen.txt')
         
     def process_item(self, item, spider):
         if item['id'] in self.comments_seen:

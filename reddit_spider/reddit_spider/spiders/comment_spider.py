@@ -8,18 +8,26 @@ import scrapy
 
 class CommentSpider(scrapy.Spider):    
     name = "comments"
-    with open('../start_info/start_urls.txt', 'r', encoding='utf-8') as start_f:        
-        start_urls = start_f.readlines()        
+    with open('start_info/start_urls.txt', 'r', encoding='utf-8') as f:        
+        start_urls = []
+        f_list = f.readlines()
+        length = len(f_list)
+        for i, line in enumerate(f_list, 1):
+            if i != length:
+                url = line[:-1]
+            else:
+                url = line
+            start_urls.append(url)        
     allowed_domains = ['reddit.com']
     
     def __init__(self):
-        self.max_urls_to_visit = 1000
+        self.max_urls_to_visit = 10000
         # Number of unique urls content was extracted from (not number of pages visited)
         self.n_visited_urls = 0
         self.visited_urls = set()
-        with open('../start_info/subreddits.txt', 'r', encoding='utf-8') as f: 
+        with open('start_info/subreddits.txt', 'r', encoding='utf-8') as f: 
             self.subreddit_list = f.readlines()  
-        load_file_to_set(self.visited_urls, filename='../scraped_content/visited_url_file.txt')
+        load_file_to_set(self.visited_urls, filename='scraped_content/visited_url_file.txt')
         
     def parse(self, response):        
         # Reached max_urls_to_visit_condition
@@ -38,11 +46,14 @@ class CommentSpider(scrapy.Spider):
         if self.n_visited_urls >= self.max_urls_to_visit:
             raise scrapy.exceptions.CloseSpider('finished, max count of {} reached, {} pages visited'.format(self.max_urls_to_visit, self.n_visited_urls))
         
-        # For every div class=md text on page, send it to pipelines to save to clean and save
+        # For every div class=md text on page, send it to pipelines to clean and save
+        current_url = response.url
         for div in response.css("div.md"):
             # Creates a unique id for every comment based on comment and the url it was found in  
             div_p_text = div.css("div.md p::text").extract()
-            comment_id = response.url+''.join(div_p_text)
+            p_text_list = list(''.join(div_p_text))
+            cleaned_p_text = ''.join(list(filter(('\n').__ne__, p_text_list)))
+            comment_id = current_url+' '+cleaned_p_text
             yield {
                     "id" : comment_id,
                     "div": div.extract(),
@@ -64,7 +75,7 @@ class CommentSpider(scrapy.Spider):
                 yield response.follow(page_link[0], self.parse)
 
     def closed(self, reason):
-        save_set_to_file(self.visited_urls, filename='../scraped_content/visited_url_file.txt')
+        save_set_to_file(self.visited_urls, filename='scraped_content/visited_url_file.txt')
         #with open('../start_urls/start_urls.txt', 'w', encoding='utf-8') as f:
             #f.write(self.last_page_url)
                 
